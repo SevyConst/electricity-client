@@ -1,52 +1,36 @@
 package example;
 
+import java.net.URI;
+
 public class Params {
-    private String ipMainServer;
-    private int portMainServer;
-    private String ipSecondServer;  /// Nullable
-    private Integer portSecondServer;  /// Nullable
+    private URI uriMain;
+    private URI uriSecond;
     private Integer pauseBetweenRequests;   /// Seconds
     private String deviceName;
     private boolean autonomousClock;
 
-    public String getIpMainServer() {
-        return ipMainServer;
+    public URI getUriMain() {
+        return uriMain;
     }
 
-    public void setIpMainServer(String ipMainServer) {
-        this.ipMainServer = ipMainServer;
+    public void setUriMain(URI uriMain) {
+        this.uriMain = uriMain;
     }
 
-    public int getPortMainServer() {
-        return portMainServer;
+    public URI getUriSecond() {
+        return uriSecond;
     }
 
-    public void setPortMainServer(int portMainServer) {
-        this.portMainServer = portMainServer;
-    }
-
-    public String getIpSecondServer() {
-        return ipSecondServer;
-    }
-
-    public void setIpSecondServer(String ipSecondServer) {
-        this.ipSecondServer = ipSecondServer;
-    }
-
-    public Integer getPortSecondServer() {
-        return portSecondServer;
-    }
-
-    public void setPortSecondServer(Integer portSecondServer) {
-        this.portSecondServer = portSecondServer;
+    public void setUriSecond(URI uriSecond) {
+        this.uriSecond = uriSecond;
     }
 
     public Integer getPauseBetweenRequests() {
         return pauseBetweenRequests;
     }
 
-    public void pauseBetweenRequests(Integer requestPauseSeconds) {
-        this.pauseBetweenRequests = requestPauseSeconds;
+    public void setPauseBetweenRequests(Integer pauseBetweenRequests) {
+        this.pauseBetweenRequests = pauseBetweenRequests;
     }
 
     public String getDeviceName() {

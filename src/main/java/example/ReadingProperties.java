@@ -6,6 +6,8 @@ import org.slf4j.LoggerFactory;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.Objects;
 import java.util.Properties;
 
@@ -40,32 +42,42 @@ public class ReadingProperties {
 
     private void readSendingProperties(Properties properties, Params params)
             throws ReadingPropertiesException {
-        params.setIpMainServer(readIpMainServer(properties));
-        params.setPortMainServer(readPortMainServer(properties));
-        
-        params.setIpSecondServer(readIpSecondServer(properties));
-        params.setPortSecondServer(readPortSecondServer(properties));
+        String ipMain = readIpMainServer(properties);
+        int portMain = readPortMainServer(properties);
+        try {
+            params.setUriMain(createURI(ipMain, portMain));
+        } catch (URISyntaxException e) {
+            throw new ReadingPropertiesException("can't create URI from ip: '" +
+                    ipMain + "', port: '" + portMain + "')", e);
+        }
 
-        if (Objects.isNull(params.getIpSecondServer())
-                &&
-                Objects.nonNull(params.getPortSecondServer())) {
+        String ipSecond = readIpSecondServer(properties);
+        Integer portSecond = readPortSecondServer(properties);
+
+        if (Objects.isNull(ipSecond) && Objects.nonNull(portSecond)) {
             throw new ReadingPropertiesException("Property '" +
                     PROPERTY_IP_SECOND_SERVER +
                     "' isn't defined but property '" +
                     PROPERTY_PORT_SECOND_SERVER + "' is defined");
         }
 
-        if (Objects.nonNull(params.getIpSecondServer())
-                &&
-                Objects.isNull(params.getPortSecondServer())) {
-            throw new ReadingPropertiesException("Property '" +
-                    PROPERTY_PORT_SECOND_SERVER +
-                    "' isn't defined but property '" +
-                    PROPERTY_IP_SECOND_SERVER + "' is defined");
-        }
+        if (Objects.nonNull(ipSecond)) {
+            if (Objects.nonNull(portSecond)) {
+                try {
+                    params.setUriMain(createURI(ipMain, portMain));
+                } catch (URISyntaxException e) {
+                    throw new ReadingPropertiesException("can't create URI from ip: '" +
+                            ipMain + "', port: '" + portMain + "')", e);
+                }
+            } else {
+                    throw new ReadingPropertiesException("Property '" +
+                            PROPERTY_PORT_SECOND_SERVER +
+                            "' isn't defined but property '" +
+                            PROPERTY_IP_SECOND_SERVER + "' is defined");
+                }
+            }
 
-
-        params.pauseBetweenRequests(readPauseBetweenRequests(properties));
+        params.setPauseBetweenRequests(readPauseBetweenRequests(properties));
     }
 
     private String readIpMainServer(Properties properties)
@@ -192,5 +204,11 @@ public class ReadingProperties {
 
         logger.info("{}: {}", PROPERTY_AUTONOMOUS_CLOCK, autonomousClock);
         return autonomousClock;
+    }
+
+    private static final String protocol = "http";
+    private static final String path = "/events";
+    public static URI createURI(String ip, int port) throws URISyntaxException {
+        return new URI(protocol + "://" + ip + ":" + port + path);
     }
 }
